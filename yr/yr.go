@@ -89,7 +89,7 @@ func Convert() error {
 			continue
 		}
 
-		lastDigit := temperature - float64(int(temperature/10))*10
+		lastDigit := temperature
 
 		// Konverterer Celsius til Fahrenheit
 		// fahrenheit := conv.CelsiusToFarenheit(lastDigit) //

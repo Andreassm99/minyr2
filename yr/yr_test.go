@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -171,39 +170,29 @@ func TestLastLineOfFile(t *testing.T) {
 	}
 }
 
-// en test som sjekker at gjennomsnittempraturen er 8.56
-func TestAverageTemperature(t *testing.T) {
-	file, err := os.Open("kjevik-temp-celsius-20220318-20230318.csv")
+func TestAverageCelsius(t *testing.T) {
+	expected := 8.55897099200191
+
+	// Endrer arbeidskatalogen til katalogen der CSV-filen befinner seg
+	err := os.Chdir("..")
 	if err != nil {
-		t.Fatalf("Feilet å åpne fil: %v", err)
+		t.Fatalf("Feil: %v", err)
 	}
-	defer file.Close()
 
-	reader := csv.NewReader(file)
-	var sum float64
-	var count int
-	for i := 1; ; i++ {
-		record, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
+	// Endrer arbeidskatalogen tilbake til katalogen der testfilen befinner seg når testen er ferdig
+	defer func() {
+		err = os.Chdir("yr")
 		if err != nil {
-			t.Fatalf("Feilet å lese fil: %v", err)
+			t.Fatalf("Feil: %v", err)
 		}
-		if i == 1 || i == 16756 {
-			continue // Hopper over første og siste linje
-		}
-		temp, err := strconv.ParseFloat(record[3], 64)
-		if err != nil {
-			t.Fatalf("Feilet å analysere tempraturen: %v", err)
-		}
-		sum += temp
-		count++
+	}()
+
+	avg, err := Average("c")
+	if err != nil {
+		t.Fatalf("Feil: %v", err)
 	}
-	avg := sum / float64(count)
 
-	expected := 8.56
 	if avg != expected {
-		t.Errorf("Gjennomsnittelig tempratur er %v, forventet %v", avg, expected)
+		t.Fatalf("Gjennomsnittet er %v, men forventet %v", avg, expected)
 	}
 }
